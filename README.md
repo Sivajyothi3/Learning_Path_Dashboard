@@ -40,22 +40,6 @@ Ideal for students, self-learners, and coding enthusiasts who want a personalize
 
 🌐 Community feature to share resources
 
-📷 Preview
-
-(Add screenshot of your dashboard here once hosted)
-
-🚀 Deployment
-
-You can host it easily on GitHub Pages:
-
-Push the project to your GitHub repository
-
-Go to Settings → Pages
-
-Select branch main → /root and save
-
-Access your dashboard from https://github.com/Sivajyothi3/Learning_Path_Dashboard
-
 🤝 Contributing
 
 Contributions are welcome! Feel free to fork this repo and improve the dashboard.
