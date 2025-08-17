@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learning Path Dashboard for Enhancing Skills</title>
+  <style>
+    :root {
+      --bg: #0f172a; /* slate-900 */
+      --panel: #111827; /* gray-900 */
+      --muted: #94a3b8; /* slate-400 */
+      --text: #e5e7eb; /* gray-200 */
+      --brand: #22d3ee; /* cyan-400 */
+      --accent: #a78bfa; /* violet-400 */
+      --ok: #34d399; /* green-400 */
+      --warn: #f59e0b; /* amber-500 */
+      --danger: #f87171; /* red-400 */
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+      margin: 0; background: radial-gradient(1200px 700px at 10% 0%, #0b1227 0, var(--bg) 40%), var(--bg);
+      color: var(--text);
+    }
+    header { padding: 24px 20px; border-bottom: 1px solid #1f2937; position: sticky; top: 0; backdrop-filter: blur(8px); background: rgba(15,23,42,0.8); z-index: 5; }
+    h1 { margin: 0 0 6px; font-size: 24px; letter-spacing: 0.3px; }
+    .subtitle { color: var(--muted); font-size: 14px; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 18px; }
+
+    .grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
+    @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+
+    .card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)); border: 1px solid #1f2937; border-radius: 18px; padding: 16px; }
+    .card h2 { margin: 4px 0 12px; font-size: 18px; }
+
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    select, input[type="date"], input[type="number"], textarea {
+      width: 100%; background: #0b1227; border: 1px solid #253045; color: var(--text); border-radius: 10px; padding: 10px 12px; outline: none;
+    }
+    textarea { min-height: 84px; resize: vertical; }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    @media (max-width: 700px){ .row, .row-3 { grid-template-columns: 1fr; } }
+
+    .btn { cursor: pointer; padding: 10px 14px; border-radius: 10px; border: 1px solid #2b3750; background: #0a132b; color: var(--text); }
+    .btn.primary { border-color: #155e75; background: linear-gradient(90deg, #0e7490, #155e75); }
+    .btn.ghost { background: transparent; }
+    .btn:active { transform: translateY(1px); }
+
+    .skills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .chip { padding: 6px 10px; border: 1px dashed #334155; border-radius: 999px; font-size: 12px; color: #c7d2fe; }
+
+    .links a { display: inline-flex; align-items: center; gap: 8px; margin: 6px 8px 0 0; padding: 8px 10px; border-radius: 10px; border: 1px solid #243044; text-decoration: none; color: var(--text); }
+
+    .statbar { height: 10px; background: #0b1227; border: 1px solid #22314c; border-radius: 999px; overflow: hidden; }
+    .statfill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--brand), var(--accent)); transition: width .4s ease; }
+
+    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table th, .table td { border-bottom: 1px solid #20304b; padding: 10px; text-align: left; }
+    .muted { color: var(--muted); }
+
+    .badge { font-size: 12px; padding: 4px 8px; border-radius: 999px; border: 1px solid #22314c; }
+    .ok { color: #052e1a; background: #34d39933; border-color: #065f46; }
+    .warn { color: #5a3b05; background: #f59e0b33; border-color: #92400e; }
+
+    footer { text-align:center; font-size: 12px; color: var(--muted); padding: 24px 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Learning Path Dashboard for Enhancing Skills</h1>
+    <div class="subtitle">Choose one language, track your daily progress, and learn with curated resources (GeeksforGeeks, W3Schools, Coursera, and YouTube in Telugu & English).</div>
+  </header>
+
+  <div class="container">
+    <div class="card" style="margin-bottom: 12px;">
+      <div class="row">
+        <div>
+          <label for="lang">Select a programming language</label>
+          <select id="lang"></select>
+        </div>
+        <div>
+          <label for="goal">Daily study goal (minutes)</label>
+          <input id="goal" type="number" placeholder="e.g., 45" min="5" step="5" />
+        </div>
+      </div>
+      <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
+        <button class="btn primary" id="saveGoal">Save Goal</button>
+        <span id="goalStatus" class="badge warn">No goal set</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- LEFT: Language Overview -->
+      <section class="card">
+        <h2 id="langTitle">Language Overview</h2>
+        <p class="muted" id="langDesc">Pick a language to see the essential skills and learning resources.</p>
+
+        <h3 style="margin: 18px 0 6px;">Core skills to learn</h3>
+        <div class="skills" id="skills"></div>
+
+        <h3 style="margin: 18px 0 6px;">Resources</h3>
+        <div class="links" id="links"></div>
+
+        <h3 style="margin: 18px 0 6px;">YouTube Tutorials</h3>
+        <div class="links" id="ytLinks"></div>
+      </section>
+
+      <!-- RIGHT: Progress -->
+      <section class="card">
+        <h2>Daily Progress Tracker</h2>
+        <div class="row">
+          <div>
+            <label for="date">Date</label>
+            <input id="date" type="date" />
+          </div>
+          <div>
+            <label for="minutes">Minutes studied</label>
+            <input id="minutes" type="number" min="0" step="5" placeholder="e.g., 30" />
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <label for="notes">Topics covered / notes</label>
+          <textarea id="notes" placeholder="e.g., Loops & functions; finished 3 exercises"></textarea>
+        </div>
+        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" id="saveProgress">Save Progress</button>
+          <button class="btn" id="exportCsv">Export CSV</button>
+          <button class="btn ghost" id="clearDay">Clear Today</button>
+        </div>
+
+        <div style="margin-top:18px;">
+          <label>Goal progress</label>
+          <div class="statbar"><div class="statfill" id="goalFill"></div></div>
+          <div class="muted" id="goalLabel" style="margin-top:6px;">0 / 0 minutes</div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top: 16px;">
+      <h2>Recent Study Log</h2>
+      <table class="table" id="logTable">
+        <thead>
+          <tr><th>Date</th><th>Language</th><th>Minutes</th><th>Notes</th></tr>
+        </thead>
+        <tbody id="logBody"></tbody>
+      </table>
+    </section>
+
+    <footer>
+      Built for CSP project — single‑file HTML. All data is stored locally in your browser (no sign‑in needed).
+    </footer>
+  </div>
+
+  <script>
+    // --- DATA --------------------------------------------------------------
+    const LANGUAGES = [
+      {
+        id: 'python', name: 'Python',
+        desc: 'Beginner‑friendly, great for problem‑solving, data, scripting, and back‑end web.',
+        skills: ['Syntax & data types', 'Control flow & functions', 'Modules & virtual envs', 'File I/O & exceptions', 'OOP & standard library', 'Testing (pytest)', 'Package mgmt (pip)', 'Web (Flask/Django) basics'],
+      },
+      {
+        id: 'java', name: 'Java',
+        desc: 'Strong OOP language used for back‑end, Android, and enterprise apps.',
+        skills: ['JVM & JDK basics', 'OOP (classes, interfaces)', 'Collections & generics', 'Exceptions & I/O', 'Build tools (Maven/Gradle)', 'Unit testing (JUnit)', 'Concurrency basics', 'JDBC & simple APIs'],
+      },
+      {
+        id: 'c', name: 'C',
+        desc: 'Systems programming, memory management, and embedded fundamentals.',
+        skills: ['C syntax & pointers', 'Memory & arrays', 'Structs & enums', 'File I/O', 'Makefiles & compiling', 'Debugging (gdb)', 'Bits & bytes', 'Simple data structures'],
+      },
+      {
+        id: 'cpp', name: 'C++',
+        desc: 'Performance‑focused with OOP & templates; used in games, engines, finance.',
+        skills: ['Modern C++ (C++17/20) syntax', 'STL containers & algorithms', 'RAII & smart pointers', 'Classes & templates', 'Build systems (CMake)', 'Error handling', 'Profiling & debugging', 'Basics of concurrency'],
+      },
+      {
+        id: 'javascript', name: 'JavaScript',
+        desc: 'Language of the web for interactive front‑ends and Node.js back‑ends.',
+        skills: ['ES6+ syntax', 'DOM & events', 'Fetch/API calls', 'Modules & bundlers', 'Async (promises/await)', 'Node.js & npm', 'Testing (Jest)', 'Basics of a framework (React/Vue)'],
+      },
+      {
+        id: 'typescript', name: 'TypeScript',
+        desc: 'Typed superset of JS for scalable web apps; compiles to JavaScript.',
+        skills: ['Types & interfaces', 'Generics', 'Type narrowing', 'Modules & configs (tsconfig)', 'Tooling (ts-node, tsc)', 'Interoperability with JS', 'Build/test setup', 'Using a framework with TS'],
+      },
+      {
+        id: 'csharp', name: 'C#',
+        desc: 'Versatile language for Windows, back‑ends, and game dev with Unity.',
+        skills: ['.NET basics & CLI', 'OOP and LINQ', 'Collections & generics', 'Async/await', 'Unit testing (xUnit/NUnit)', 'Dependency injection', 'File/Network I/O', 'Intro to ASP.NET Core'],
+      },
+      {
+        id: 'go', name: 'Go (Golang)',
+        desc: 'Compiled, simple, and fast; great for microservices and tooling.',
+        skills: ['Go toolchain & modules', 'Types & methods', 'Interfaces', 'Concurrency (goroutines/channels)', 'Testing', 'Error handling', 'HTTP servers', 'Profiling basics'],
+      },
+      {
+        id: 'ruby', name: 'Ruby',
+        desc: 'Expressive, developer‑friendly; popular with Rails for web apps.',
+        skills: ['Ruby syntax & objects', 'Blocks & enumerables', 'Gems & bundler', 'Files & exceptions', 'Testing (RSpec)', 'Metaprogramming basics', 'HTTP & APIs', 'Intro to Rails'],
+      },
+      {
+        id: 'kotlin', name: 'Kotlin',
+        desc: 'Concise JVM language; first‑class for Android and back‑ends.',
+        skills: ['Kotlin syntax & null‑safety', 'OOP + data classes', 'Collections & lambdas', 'Coroutines', 'Build (Gradle KTS)', 'Testing (JUnit/Kotest)', 'Android basics', 'Interop with Java'],
+      },
+    ];
+
+    // Helper to build resource links dynamically for the selected language
+    function resourceLinks(langName){
+      const q = encodeURIComponent(langName);
+      return [
+        { label: 'GeeksforGeeks', url: `https://www.google.com/search?q=site%3Ageeksforgeeks.org+${q}` },
+        { label: 'W3Schools', url: `https://www.google.com/search?q=site%3Aw3schools.com+${q}` },
+        { label: 'Coursera', url: `https://www.coursera.org/search?query=${q}` },
+        { label: 'Official Docs', url: `https://www.google.com/search?q=${q}+official+documentation` },
+        { label: 'Roadmap (Google Search)', url: `https://www.google.com/search?q=${q}+learning+path+roadmap` },
+      ];
+    }
+
+    function youtubeLinks(langName){
+      const q = encodeURIComponent(langName + ' tutorial');
+      return [
+        { label: 'YouTube — English', url: `https://www.youtube.com/results?search_query=${q}+english+full+course` },
+        { label: 'YouTube — Telugu', url: `https://www.youtube.com/results?search_query=${q}+telugu+full+course` },
+      ];
+    }
+
+    // --- STATE -------------------------------------------------------------
+    const langSel = document.getElementById('lang');
+    const goalInput = document.getElementById('goal');
+    const saveGoalBtn = document.getElementById('saveGoal');
+    const goalStatus = document.getElementById('goalStatus');
+    const goalFill = document.getElementById('goalFill');
+    const goalLabel = document.getElementById('goalLabel');
+
+    const dateInput = document.getElementById('date');
+    const minutesInput = document.getElementById('minutes');
+    const notesInput = document.getElementById('notes');
+
+    const saveProgressBtn = document.getElementById('saveProgress');
+    const clearDayBtn = document.getElementById('clearDay');
+    const exportCsvBtn = document.getElementById('exportCsv');
+
+    const skillsDiv = document.getElementById('skills');
+    const linksDiv = document.getElementById('links');
+    const ytDiv = document.getElementById('ytLinks');
+    const langTitle = document.getElementById('langTitle');
+    const langDesc = document.getElementById('langDesc');
+
+    const logBody = document.getElementById('logBody');
+
+    function todayISO(){
+      const d = new Date(); const off = d.getTimezoneOffset();
+      const dLocal = new Date(d.getTime() - off * 60000);
+      return dLocal.toISOString().slice(0,10);
+    }
+
+    function keyBase(){ return 'lpd_' + (langSel.value || 'python'); }
+
+    function loadGoal(){
+      const v = localStorage.getItem(keyBase() + '_goal');
+      return v ? parseInt(v, 10) : 0;
+    }
+    function saveGoal(v){ localStorage.setItem(keyBase() + '_goal', String(v)); }
+
+    function loadProgress(){
+      try { return JSON.parse(localStorage.getItem(keyBase() + '_progress')||'{}'); } catch(e){ return {}; }
+    }
+    function saveProgressMap(map){ localStorage.setItem(keyBase() + '_progress', JSON.stringify(map)); }
+
+    function renderLang(){
+      const lang = LANGUAGES.find(l => l.id === langSel.value) || LANGUAGES[0];
+      langTitle.textContent = `${lang.name} — Overview`;
+      langDesc.textContent = lang.desc;
+      // Skills chips
+      skillsDiv.innerHTML = '';
+      lang.skills.forEach(s => {
+        const span = document.createElement('span');
+        span.className = 'chip';
+        span.textContent = s;
+        skillsDiv.appendChild(span);
+      });
+      // Resource links
+      linksDiv.innerHTML = '';
+      for(const r of resourceLinks(lang.name)){
+        const a = document.createElement('a'); a.href = r.url; a.target = '_blank'; a.rel='noopener'; a.textContent = r.label; linksDiv.appendChild(a);
+      }
+      // YouTube links
+      ytDiv.innerHTML = '';
+      for(const y of youtubeLinks(lang.name)){
+        const a = document.createElement('a'); a.href = y.url; a.target = '_blank'; a.rel='noopener'; a.textContent = y.label; ytDiv.appendChild(a);
+      }
+      // Reload goal and progress for this language
+      const g = loadGoal();
+      goalInput.value = g || '';
+      goalStatus.textContent = g ? `Goal: ${g} min/day` : 'No goal set';
+      goalStatus.className = 'badge ' + (g ? 'ok' : 'warn');
+      refreshProgressUI();
+      renderLog();
+    }
+
+    function refreshProgressUI(){
+      const map = loadProgress();
+      const d = dateInput.value || todayISO();
+      const day = map[d] || { minutes: 0, notes: '' };
+      minutesInput.value = day.minutes || '';
+      notesInput.value = day.notes || '';
+
+      const g = loadGoal();
+      const pct = g ? Math.min(100, Math.round((day.minutes || 0) * 100 / g)) : 0;
+      goalFill.style.width = pct + '%';
+      goalLabel.textContent = `${day.minutes || 0} / ${g || 0} minutes (${pct}%)`;
+    }
+
+    function renderLog(){
+      const map = loadProgress();
+      const rows = Object.keys(map).sort().slice(-14).reverse(); // last 14 entries
+      logBody.innerHTML = '';
+      rows.forEach(dt => {
+        const tr = document.createElement('tr');
+        const lang = LANGUAGES.find(l => l.id === langSel.value)?.name || 'Python';
+        tr.innerHTML = `<td>${dt}</td><td>${lang}</td><td>${map[dt].minutes||0}</td><td>${(map[dt].notes||'')}</td>`;
+        logBody.appendChild(tr);
+      });
+    }
+
+    function exportCSV(){
+      const map = loadProgress();
+      const lang = LANGUAGES.find(l => l.id === langSel.value)?.name || 'Python';
+      const header = 'Date,Language,Minutes,Notes\n';
+      const lines = Object.keys(map).sort().map(d => {
+        const row = [d, lang, map[d].minutes||0, '"'+(map[d].notes||'').replaceAll('"','""')+'"'];
+        return row.join(',');
+      });
+      const blob = new Blob([header + lines.join('\n')], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `${lang.replace(/\s+/g,'_')}_study_log.csv`; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // --- INIT --------------------------------------------------------------
+    // Populate dropdown
+    LANGUAGES.forEach(l => {
+      const opt = document.createElement('option');
+      opt.value = l.id; opt.textContent = l.name; langSel.appendChild(opt);
+    });
+
+    // Defaults
+    langSel.value = 'python';
+    dateInput.value = todayISO();
+    renderLang();
+
+    // Events
+    langSel.addEventListener('change', renderLang);
+    dateInput.addEventListener('change', refreshProgressUI);
+
+    saveGoalBtn.addEventListener('click', () => {
+      const v = parseInt(goalInput.value, 10) || 0;
+      saveGoal(v);
+      goalStatus.textContent = v ? `Goal: ${v} min/day` : 'No goal set';
+      goalStatus.className = 'badge ' + (v ? 'ok' : 'warn');
+      refreshProgressUI();
+    });
+
+    saveProgressBtn.addEventListener('click', () => {
+      const d = dateInput.value || todayISO();
+      const minutes = Math.max(0, parseInt(minutesInput.value, 10) || 0);
+      const notes = notesInput.value || '';
+      const map = loadProgress();
+      map[d] = { minutes, notes };
+      saveProgressMap(map);
+      refreshProgressUI();
+      renderLog();
+    });
+
+    clearDayBtn.addEventListener('click', () => {
+      const d = dateInput.value || todayISO();
+      const map = loadProgress();
+      delete map[d];
+      saveProgressMap(map);
+      refreshProgressUI();
+      renderLog();
+    });
+
+    exportCsvBtn.addEventListener('click', exportCSV);
+  </script>
+</body>
+</html>
