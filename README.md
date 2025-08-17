@@ -54,7 +54,7 @@ Go to Settings → Pages
 
 Select branch main → /root and save
 
-Access your dashboard from https://yourusername.github.io/reponame
+Access your dashboard from https://github.com/Sivajyothi3/Learning_Path_Dashboard
 
 🤝 Contributing
 
